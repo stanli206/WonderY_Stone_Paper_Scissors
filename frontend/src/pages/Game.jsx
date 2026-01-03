@@ -4,7 +4,7 @@ import axios from "axios";
 const choices = [
   { name: "stone", emoji: "🪨" },
   { name: "paper", emoji: "📄" },
-  { name: "scissors", emoji: "✂️" }
+  { name: "scissors", emoji: "✂️" },
 ];
 
 export default function Game() {
@@ -16,8 +16,7 @@ export default function Game() {
   const playRound = (choice) => {
     if (rounds.length >= 6) return;
 
-    const p2Choice =
-      choices[Math.floor(Math.random() * 3)].name;
+    const p2Choice = choices[Math.floor(Math.random() * 3)].name;
 
     setRounds([
       ...rounds,
@@ -31,7 +30,7 @@ export default function Game() {
   };
 
   const submitGame = async () => {
-    await axios.post("http://localhost:5000/api/games", {
+    await axios.post("http://16.171.148.112:5000/api/games", {
       player1Name,
       player2Name,
       rounds,
@@ -45,7 +44,6 @@ export default function Game() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl w-full max-w-md">
-
         {/* TITLE */}
         <h1 className="text-3xl font-extrabold text-center mb-2 tracking-widest">
           🎮 STONE PAPER SCISSORS
@@ -89,9 +87,7 @@ export default function Game() {
 
         {/* MESSAGE */}
         {message && (
-          <p className="text-center text-green-400 mb-4">
-            {message}
-          </p>
+          <p className="text-center text-green-400 mb-4">{message}</p>
         )}
 
         {/* FINISH */}

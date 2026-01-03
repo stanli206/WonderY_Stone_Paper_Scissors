@@ -6,7 +6,7 @@ export default function History() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/games")
+      .get("http://16.171.148.112:5000/api/games")
       .then((res) => setGames(res.data));
   }, []);
 
@@ -20,9 +20,7 @@ export default function History() {
             <strong>{game.player1Name}</strong> vs{" "}
             <strong>{game.player2Name}</strong>
           </p>
-          <p className="font-bold">
-            Winner: {game.finalWinner}
-          </p>
+          <p className="font-bold">Winner: {game.finalWinner}</p>
         </div>
       ))}
     </div>
