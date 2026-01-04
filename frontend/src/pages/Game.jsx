@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 const choices = [
@@ -7,99 +7,190 @@ const choices = [
   { name: "scissors", emoji: "✂️" },
 ];
 
+const decideWinner = (p1, p2, p1Name, p2Name) => {
+  if (p1 === p2) return "Tie";
+
+  if (
+    (p1 === "stone" && p2 === "scissors") ||
+    (p1 === "scissors" && p2 === "paper") ||
+    (p1 === "paper" && p2 === "stone")
+  ) {
+    return p1Name;
+  }
+  return p2Name;
+};
+
 export default function Game() {
-  const [player1Name, setP1] = useState("");
-  const [player2Name, setP2] = useState("");
+  const [player1Name, setPlayer1Name] = useState("");
+  const [player2Name, setPlayer2Name] = useState("");
+
+  const [p1Choice, setP1Choice] = useState("");
+  const [p2Choice, setP2Choice] = useState("");
+
   const [rounds, setRounds] = useState([]);
-  const [message, setMessage] = useState("");
+  const [finalWinner, setFinalWinner] = useState("");
 
-  const playRound = (choice) => {
-    if (rounds.length >= 6) return;
+  useEffect(() => {
+    if (p1Choice && p2Choice && rounds.length < 6) {
+      const winner = decideWinner(p1Choice, p2Choice, player1Name, player2Name);
 
-    const p2Choice = choices[Math.floor(Math.random() * 3)].name;
+      setRounds((prev) => [
+        ...prev,
+        {
+          player1Choice: p1Choice,
+          player2Choice: p2Choice,
+          winner,
+        },
+      ]);
 
-    setRounds([
-      ...rounds,
-      {
-        player1Choice: choice,
-        player2Choice: p2Choice,
-      },
-    ]);
+      setP1Choice("");
+      setP2Choice("");
+    }
+  }, [p1Choice, p2Choice]);
 
-    setMessage(`You played ${choice.toUpperCase()}`);
+  const calculateScore = () => {
+    let p1 = 0,
+      p2 = 0;
+
+    rounds.forEach((r) => {
+      if (r.winner === player1Name) p1++;
+      if (r.winner === player2Name) p2++;
+    });
+
+    return { p1, p2 };
   };
 
-  const submitGame = async () => {
+  const publishResult = async () => {
+    const { p1, p2 } = calculateScore();
+
+    let winner = "Tie";
+    if (p1 > p2) winner = player1Name;
+    if (p2 > p1) winner = player2Name;
+
+    setFinalWinner(winner);
+
     await axios.post("http://16.171.148.112:5000/api/games", {
       player1Name,
       player2Name,
       rounds,
     });
-
-    alert("🏆 Game Saved!");
-    setRounds([]);
-    setMessage("");
   };
+
+  const restartGame = () => {
+    setRounds([]);
+    setFinalWinner("");
+    setP1Choice("");
+    setP2Choice("");
+  };
+
+  const { p1, p2 } = calculateScore();
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        {/* TITLE */}
-        <h1 className="text-3xl font-extrabold text-center mb-2 tracking-widest">
-          🎮 STONE PAPER SCISSORS
+      <div className="bg-slate-900/90 p-8 rounded-2xl w-full max-w-xl text-white">
+        <h1 className="text-3xl font-bold text-center mb-4">
+          🎮 Stone Paper Scissors (2 Player)
         </h1>
 
-        <p className="text-center text-sm text-slate-400 mb-6">
-          Round {rounds.length} / 6
-        </p>
+        {/* Player Names */}
+        {rounds.length === 0 && (
+          <div className="flex gap-3 mb-4">
+            <input
+              placeholder="Player 1 Name"
+              value={player1Name}
+              onChange={(e) => setPlayer1Name(e.target.value)}
+              className="flex-1 bg-slate-800 p-2 rounded text-center"
+            />
+            <input
+              placeholder="Player 2 Name"
+              value={player2Name}
+              onChange={(e) => setPlayer2Name(e.target.value)}
+              className="flex-1 bg-slate-800 p-2 rounded text-center"
+            />
+          </div>
+        )}
 
-        {/* PLAYER NAMES */}
-        <div className="flex gap-3 mb-6">
-          <input
-            placeholder="Player 1"
-            value={player1Name}
-            onChange={(e) => setP1(e.target.value)}
-            className="flex-1 bg-slate-800 border border-slate-700 rounded px-3 py-2 text-center"
-          />
-          <input
-            placeholder="Player 2"
-            value={player2Name}
-            onChange={(e) => setP2(e.target.value)}
-            className="flex-1 bg-slate-800 border border-slate-700 rounded px-3 py-2 text-center"
-          />
+        {/* Round Counter */}
+        <p className="text-center mb-2">Round {rounds.length} / 6</p>
+
+        {/* Scoreboard */}
+        <div className="text-center mb-4 font-semibold">
+          {player1Name} : {p1} | {player2Name} : {p2}
         </div>
 
-        {/* GAME BUTTONS */}
-        <div className="flex justify-center gap-4 mb-6">
-          {choices.map((c) => (
-            <button
-              key={c.name}
-              onClick={() => playRound(c.name)}
-              className="w-20 h-20 text-4xl rounded-full
-              bg-gradient-to-br from-indigo-600 to-purple-700
-              hover:scale-110 transition-transform
-              shadow-lg active:scale-95"
-            >
-              {c.emoji}
-            </button>
+        {/* Player 1 */}
+        <div className="mb-3">
+          <p className="text-center mb-2">{player1Name}'s Choice</p>
+          <div className="flex justify-center gap-3">
+            {choices.map((c) => (
+              <button
+                key={c.name}
+                onClick={() => setP1Choice(c.name)}
+                disabled={!!p1Choice}
+                className={`w-14 h-14 text-2xl rounded-full ${
+                  p1Choice === c.name ? "bg-green-600" : "bg-indigo-600"
+                }`}
+              >
+                {c.emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Player 2 */}
+        <div className="mb-4">
+          <p className="text-center mb-2">{player2Name}'s Choice</p>
+          <div className="flex justify-center gap-3">
+            {choices.map((c) => (
+              <button
+                key={c.name}
+                onClick={() => setP2Choice(c.name)}
+                disabled={!p1Choice || !!p2Choice}
+                className={`w-14 h-14 text-2xl rounded-full ${
+                  p2Choice === c.name ? "bg-green-600" : "bg-purple-600"
+                }`}
+              >
+                {c.emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Round Results */}
+        <div className="bg-slate-800 rounded p-4 mb-4">
+          <h2 className="font-bold mb-2">Round Results</h2>
+          {rounds.map((r, i) => (
+            <p key={i} className="text-sm">
+              Round {i + 1}: {player1Name} ({r.player1Choice}) vs {player2Name}{" "}
+              ({r.player2Choice}) → <strong>{r.winner}</strong>
+            </p>
           ))}
         </div>
 
-        {/* MESSAGE */}
-        {message && (
-          <p className="text-center text-green-400 mb-4">{message}</p>
-        )}
-
-        {/* FINISH */}
+        {/* Final */}
         {rounds.length === 6 && (
-          <button
-            onClick={submitGame}
-            className="w-full py-3 rounded-xl font-bold
-            bg-gradient-to-r from-emerald-500 to-green-600
-            hover:opacity-90"
-          >
-            🏁 FINISH GAME
-          </button>
+          <div className="text-center space-y-3">
+            <button
+              onClick={publishResult}
+              className="bg-green-600 px-6 py-2 rounded font-bold"
+            >
+              Publish Result
+            </button>
+
+            {finalWinner && (
+              <>
+                <p className="text-xl font-bold">
+                  🏆 Final Winner: {finalWinner}
+                </p>
+                <button
+                  onClick={restartGame}
+                  className="bg-red-600 px-6 py-2 rounded font-bold"
+                >
+                  🔄 Restart Game
+                </button>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>
