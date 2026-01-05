@@ -69,11 +69,14 @@ export default function Game() {
 
     setFinalWinner(winner);
 
-    await axios.post("http://16.171.148.112:5000/api/games", {
-      player1Name,
-      player2Name,
-      rounds,
-    });
+    await axios.post(
+      "http://wondery-backend-alb-763939103.eu-north-1.elb.amazonaws.com/api/games",
+      {
+        player1Name,
+        player2Name,
+        rounds,
+      }
+    );
   };
 
   const restartGame = () => {

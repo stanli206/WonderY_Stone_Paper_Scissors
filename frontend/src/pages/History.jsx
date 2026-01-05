@@ -6,7 +6,9 @@ export default function History() {
 
   useEffect(() => {
     axios
-      .get("http://16.171.148.112:5000/api/games")
+      .get(
+        "http://wondery-backend-alb-763939103.eu-north-1.elb.amazonaws.com/api/games"
+      ) // http://16.171.148.112:5000
       .then((res) => setGames(res.data));
   }, []);
 
