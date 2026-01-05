@@ -7,8 +7,8 @@ export default function History() {
   useEffect(() => {
     axios
       .get(
-        "http://wondery-backend-alb-763939103.eu-north-1.elb.amazonaws.com/api/games"
-      ) // http://16.171.148.112:5000
+        "https://d3ilpfd9bcjuxp.cloudfront.net/api/games"
+      ) // http://16.171.148.112:5000 , http://wondery-backend-alb-763939103.eu-north-1.elb.amazonaws.com/
       .then((res) => setGames(res.data));
   }, []);
 
