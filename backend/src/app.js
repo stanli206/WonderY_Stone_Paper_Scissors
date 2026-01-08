@@ -8,7 +8,8 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://d3ilpfd9bcjuxp.cloudfront.net", //http://wondery-stone-paper-scissors-ui.s3-website.eu-north-1.amazonaws.com", //http://localhost:5173
+    origin:
+      "http://wondery-stone-paper-scissors-ui.s3-website.eu-north-1.amazonaws.com", //https://d3ilpfd9bcjuxp.cloudfront.net", //http://wondery-stone-paper-scissors-ui.s3-website.eu-north-1.amazonaws.com", //http://localhost:5173
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })

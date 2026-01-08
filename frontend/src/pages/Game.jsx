@@ -69,12 +69,13 @@ export default function Game() {
 
     setFinalWinner(winner);
 
-    await axios.post("https://d3ilpfd9bcjuxp.cloudfront.net/api/games", {
+    await axios.post("http://16.171.148.112:5000/api/games", {
       player1Name,
       player2Name,
       rounds,
     });
   };
+//https://d3ilpfd9bcjuxp.cloudfront.net/api/games  
 
   const restartGame = () => {
     setRounds([]);
