@@ -13,7 +13,7 @@ const Game = sequelize.define(
       allowNull: false,
     },
     rounds: {
-      type: DataTypes.JSONB,   // Mongo-style data store
+      type: DataTypes.JSONB,   
       allowNull: false,
     },
     finalWinner: {
